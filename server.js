@@ -13,8 +13,9 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use('/api',api);
 
-const port = process.env.PORT || 4008;
 
-app.listen(4008, ()=>{
+const port = process.env.PORT || 5000;
+
+app.listen(5000, ()=>{
     console.log('server started');
 })

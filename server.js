@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const app = express();
 const api = require('./app');
 const cors = require('cors');
-
+require('dotenv').config();
 
 
 // Body parser middleware

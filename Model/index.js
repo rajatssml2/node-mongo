@@ -38,14 +38,12 @@ const model = {
         user: {
             create: async (param) => {
                 let token = await authToken.createToken(param);
-               
                 if(token) {
-                    
                     if(authToken.verifyToken(token)) {
                         try { r = await User.create(param); }
                         catch(e) { return { error: { type: 'error', text: e.message } }; }
                         if(!r) { return { error: { type: 'error', text: 'can\'t create user!' } }; }
-                        return { message: { type: 'success' }, data: {token: token, user: r} };
+                        return { message: { type: 'register success' }, data: {token: token, user: r} };
                     } else {
                         { return { error: { type: 'error', text: 'token is not valid' } }; }
                     }
@@ -55,13 +53,28 @@ const model = {
                 
             },
             login: async (param) => {
-                var token = jwt.sign(param, 'secrect_key');
-                jwt.verify(token, 'secrect_key', function(err, decoded) {
-                });
-                try { r = await User.find(param.email); }
-                catch(e) { return { error: { type: 'error', text: e.message } }; }
-                if(!r) { return { error: { type: 'error', text: 'can\'t create user!' } }; }
-                return { message: { type: 'success' }, data: {token: token, user: r} };
+                console.log("param-->",param);
+                let token = await authToken.createToken(param);
+                if(token) {
+                    if(authToken.verifyToken(token)) {
+                        try { r = await User.findOne({email: param.email}); }
+                        catch(e) { return { error: { type: 'error', text: e.message } }; }
+                        if(!r) { return { error: { type: 'error', text: 'can\'t create user!' } }; }
+                        if(r) {
+                            if (r.password === param.password) {
+                                return { message: { type: 'login success' }, data: {token: token, user: r} };
+                            }
+                            else {
+                                return { error: { type: 'error', text: 'password is not valid' } };
+                            }
+                        }
+                        
+                    } else {
+                        return { error: { type: 'error', text: 'token is not valid' } };
+                    }
+                } else {
+                    return { error: { type: 'error', text: 'token not found' } };
+                }
             },
             getUsers: async ()=> {
                 try {

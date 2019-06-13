@@ -7,6 +7,7 @@ require('./Model/').connect();
 
 const router=()=>{
     api.post('/user', userController.create);
+    api.post('/login', userController.login);
     api.get('/user', userController.getUsers);
     return api;
 }

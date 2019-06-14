@@ -4,7 +4,7 @@ const ObjectId = mongoose.Types.ObjectId;
 const jwt = require('jsonwebtoken');
 const authToken = require('../utility/auth');
 
-var User;
+var User, Profile;
 
 
 const model = {
@@ -18,6 +18,7 @@ const model = {
             console.log("connection created");
 
             model.create.user();
+            model.create.profile();
         });
     },
     create: {
@@ -32,6 +33,21 @@ const model = {
                 password: { type: String, required: true }
             });
             User = mongoose.model('User', schema);
+        },
+        profile: async () => {
+            let schema = new mongoose.Schema({
+                name: { type: String, required: true },
+                email: { type: String, unique: true, required: true },
+                contactNo: { type: String, required: true },
+                alternateNo: { type: String, required: false },
+                address_1: { type: String, required: true },
+                address_2: { type: String, required: false },
+                city: { type: String, required: true },
+                state: { type: String, required: true },
+                country: { type: String, required: true },
+                pin: { type: String, required: true }
+            });
+            Profile = mongoose.model('Profile', schema);
         }
     },
     objects: {
@@ -85,6 +101,24 @@ const model = {
                 };
                 return { message: { type: 'success' }, data: r };
             }
+        },
+        profile: {
+            createProfile: async (param) => {
+                let token = await authToken.createToken(param);
+                if(token) {
+                    if(authToken.verifyToken(token)) {
+                        try { r = await Profile.create(param); }
+                        catch(e) { return { error: { type: 'error', text: e.message } }; }
+                        if(!r) { return { error: { type: 'error', text: 'can\'t create user!' } }; }
+                        return { message: { type: 'profile created successfuly' }, data: {token: token, user: r} };
+                    } else {
+                        { return { error: { type: 'error', text: 'token is not valid' } }; }
+                    }
+                } else {
+                    { return { error: { type: 'error', text: 'token not found' } }; }
+                }
+                
+            },
         }
     }
 };
